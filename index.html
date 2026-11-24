@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>메리크리스마스트리 — 3D 크리스마스 트리 데스크탑 위젯</title>
+    <meta
+      name="description"
+      content="macOS와 Windows 바탕화면에 3D 회전 크리스마스 트리를 띄워두고 타임캡슐, 어드벤트 캘린더, 산타 선물을 함께 나누는 데스크탑 위젯 앱입니다."
+    />
+    <meta name="theme-color" content="#080c12" />
+    <link rel="icon" type="image/png" href="./assets/icon.png" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/config.friends.js" defer></script>
+    <script src="./assets/ascii-tree.js" defer></script>
+    <script src="./assets/app.js" defer></script>
+  </head>
+  <body>
+    <canvas id="snow-overlay-canvas" class="snow-canvas" aria-hidden="true"></canvas>
+
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a href="#top" class="brand-link">
+            <img src="./assets/icon.png" alt="메리크리스마스트리 아이콘" class="brand-icon" />
+            <span class="brand-text">
+              <span class="brand-title">메리크리스마스트리</span>
+              <span id="nav-version-badge" class="version-pill mono-font">v2.2.0</span>
+            </span>
+          </a>
+
+          <div class="header-actions">
+            <button
+              type="button"
+              class="icon-toggle-btn is-active"
+              data-snow-toggle
+              aria-pressed="true"
+              title="배경 눈 내리기 켜기/끄기"
+            >
+              <span>❄</span>
+              <span data-snow-label class="mono-font">눈 ON</span>
+            </button>
+            <a href="#download" class="nav-cta-btn">다운로드</a>
+          </div>
+        </div>
+      </header>
+
+      <main id="top">
+        <!-- 히어로 섹션 -->
+        <section class="hero-section">
+          <div class="container hero-grid">
+            <div>
+              <div class="hero-badge mono-font">
+                <span>✦</span>
+                <span>3D DESKTOP WIDGET</span>
+              </div>
+              <h1 class="hero-title">
+                바탕화면 한켠에서 반짝이는<br />
+                <span class="accent">우리만의 작은 3D 트리</span>
+              </h1>
+              <p class="hero-desc">
+                고밀도 3D 회전 트리와 선물 상자를 바탕화면에 띄워두고,
+                12월 24일에 열리는 타임캡슐 편지·어드벤트 캘린더·산타 선물을
+                친구·가족과 함께 나눠보세요.
+              </p>
+
+              <div class="hero-cta-row">
+                <a id="hero-download-btn" href="#download" class="btn-primary">
+                  <span>⬇</span>
+                  <span data-btn-label>설치 파일 다운로드</span>
+                </a>
+                <a href="#download" class="btn-secondary">다른 OS 보기</a>
+              </div>
+
+              <p id="hero-platform-note" class="hero-platform-note mono-font">
+                macOS 12+ · Windows 10/11 지원
+              </p>
+
+              <div id="mobile-notice" class="mobile-notice" hidden>
+                <span>PC(macOS · Windows) 전용 앱입니다. PC에서 열어 설치해 주세요.</span>
+                <button
+                  type="button"
+                  class="copy-mini-btn"
+                  data-copy-text="__CURRENT_URL__"
+                >
+                  <span data-copy-label>페이지 링크 복사</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3D 트리 실시간 미리보기 -->
+            <div class="tree-showcase">
+              <div class="showcase-topbar">
+                <div class="window-dots" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="showcase-hint mono-font">드래그해서 3D 트리를 돌려보세요</span>
+              </div>
+
+              <div class="tree-canvas-wrap">
+                <canvas id="hero-tree-canvas" class="tree-canvas"></canvas>
+              </div>
+
+              <div class="theme-switcher" role="group" aria-label="트리 테마 미리보기">
+                <button type="button" class="theme-chip is-active" data-theme-btn="classic">
+                  <span class="theme-dot" style="background: #36a86d"></span>
+                  <span>클래식</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme-btn="snow-white">
+                  <span class="theme-dot" style="background: #e2e8f0"></span>
+                  <span>스노우</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme-btn="aurora">
+                  <span class="theme-dot" style="background: #2dd4bf"></span>
+                  <span>오로라</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme-btn="rose-winter">
+                  <span class="theme-dot" style="background: #fb7185"></span>
+                  <span>로즈</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme-btn="champagne">
+                  <span class="theme-dot" style="background: #fde047"></span>
+                  <span>샴페인</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- OS별 다운로드 섹션 -->
+        <section id="download" class="section-block">
+          <div class="container">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow mono-font">DOWNLOAD</p>
+                <h2 class="section-title">운영체제에 맞는 설치 파일 받기</h2>
+              </div>
+              <div class="section-meta">
+                <span id="release-version-badge" class="meta-pill mono-font">v2.2.0</span>
+                <span id="release-date-badge" class="meta-pill mono-font" hidden></span>
+                <a
+                  id="github-releases-link"
+                  href="#download"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-link"
+                >
+                  모든 릴리즈 보기 ↗
+                </a>
+              </div>
+            </div>
+
+            <div id="release-notes-box" class="release-notes-box" hidden>
+              <div class="release-notes-title mono-font">RELEASE NOTES</div>
+              <div id="release-notes-text"></div>
+            </div>
+
+            <div class="download-grid">
+              <article class="download-card" data-platform-card="mac-arm64">
+                <div>
+                  <div class="card-top-row">
+                    <span class="os-tag mono-font"> macOS</span>
+                    <span class="rec-badge" data-rec-badge hidden>추천</span>
+                  </div>
+                  <h3 class="card-title">Apple Silicon (M1 이후)</h3>
+                  <p class="card-sub">macOS 12 Monterey 이상 · arm64 (.dmg)</p>
+                </div>
+                <div class="card-bottom">
+                  <span class="asset-meta mono-font" data-asset-meta>확인 중...</span>
+                  <a href="#download" class="card-download-btn" data-card-download>
+                    <span data-btn-label>설치 파일 다운로드</span>
+                  </a>
+                </div>
+              </article>
+
+              <article class="download-card" data-platform-card="mac-x64">
+                <div>
+                  <div class="card-top-row">
+                    <span class="os-tag mono-font"> macOS</span>
+                    <span class="rec-badge" data-rec-badge hidden>추천</span>
+                  </div>
+                  <h3 class="card-title">Intel Mac</h3>
+                  <p class="card-sub">macOS 12 Monterey 이상 · x64 (.dmg)</p>
+                </div>
+                <div class="card-bottom">
+                  <span class="asset-meta mono-font" data-asset-meta>확인 중...</span>
+                  <a href="#download" class="card-download-btn" data-card-download>
+                    <span data-btn-label>설치 파일 다운로드</span>
+                  </a>
+                </div>
+              </article>
+
+              <article class="download-card" data-platform-card="win-x64">
+                <div>
+                  <div class="card-top-row">
+                    <span class="os-tag mono-font">⊞ Windows</span>
+                    <span class="rec-badge" data-rec-badge hidden>추천</span>
+                  </div>
+                  <h3 class="card-title">Windows 64-bit</h3>
+                  <p class="card-sub">Windows 10 / 11 · x64 설치 파일 (.exe)</p>
+                </div>
+                <div class="card-bottom">
+                  <span class="asset-meta mono-font" data-asset-meta>확인 중...</span>
+                  <a href="#download" class="card-download-btn" data-card-download>
+                    <span data-btn-label>설치 파일 다운로드</span>
+                  </a>
+                </div>
+              </article>
+            </div>
+
+            <p class="arch-tip">
+              💡 <strong>내 Mac 칩 확인 방법:</strong> 화면 좌측 상단 <strong> &gt; 이 Mac에 관하여</strong>에서
+              '칩: Apple M...'이 보이면 Apple Silicon, '프로세서: Intel'이면 Intel Mac 버전을 받으세요.
+            </p>
+          </div>
+        </section>
+
+        <!-- 주요 기능 소개 -->
+        <section id="features" class="section-block">
+          <div class="container">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow mono-font">FEATURES</p>
+                <h2 class="section-title">작지만 알찬 4가지 겨울 기능</h2>
+              </div>
+            </div>
+
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon">🎄</div>
+                <h3>투명 3D 위젯 &amp; 눈 효과</h3>
+                <p>
+                  5단 전나무와 3D 선물 상자가 바탕화면에서 부드럽게 회전합니다.
+                  클릭을 방해하지 않는 3레이어 눈꽃 오버레이도 켜고 끌 수 있습니다.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">⏳</div>
+                <h3>12월 24일 개봉 타임캡슐 트리</h3>
+                <p>
+                  트리에 오너먼트처럼 편지를 매달아 두세요. <code>@모두에게</code>는 이브에 전체 공개되고,
+                  특정 <code>@닉네임</code> 메시지는 당사자끼리만 비밀리에 열립니다.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">🗓️</div>
+                <h3>어드벤트 캘린더 &amp; 트리 꾸미기</h3>
+                <p>
+                  매일 날짜 칸을 열어 트리 테마, 꼭대기 토퍼, 장식 소품과 스페셜 선물권을 얻고
+                  바탕화면 3D 트리에 즉시 배치해 나만의 트리를 꾸밀 수 있습니다.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">🎁</div>
+                <h3>산타 선물함 &amp; 이미지 선물 스튜디오</h3>
+                <p>
+                  마음을 담은 일반 선물부터 내 이미지를 변환해 보내는 스페셜 선물까지
+                  주고받으며, 받은 선물을 트리 곁에 전시할 수 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 설치 및 시작 가이드 -->
+        <section id="guide" class="section-block">
+          <div class="container">
+            <div class="section-header">
+              <div>
+                <p class="section-eyebrow mono-font">GUIDE</p>
+                <h2 class="section-title">설치 및 첫 시작 안내</h2>
+              </div>
+            </div>
+
+            <div class="guide-shell">
+              <div class="guide-tabs" role="tablist" aria-label="운영체제별 설치 가이드">
+                <button
+                  type="button"
+                  role="tab"
+                  class="guide-tab-btn is-active"
+                  data-guide-tab="mac"
+                  aria-selected="true"
+                >
+                   macOS 설치 안내
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="guide-tab-btn"
+                  data-guide-tab="win"
+                  aria-selected="false"
+                >
+                  ⊞ Windows 설치 안내
+                </button>
+              </div>
+
+              <div class="guide-body">
+                <div class="guide-box" data-guide-panel="mac">
+                  <h3>macOS 간편 설치 (보안/손상 경고 없이 바로 실행)</h3>
+                  <ol class="guide-list">
+                    <li><strong>추천 — 터미널 1줄 자동 설치:</strong> <strong>터미널(Terminal)</strong> 앱에 아래 명령어를 붙여넣으면 Apple Silicon/Intel에 맞춰 설치·실행까지 한 번에 끝납니다.</li>
+                  </ol>
+                  <div class="code-snippet-box">
+                    <code class="mono-font">curl -fsSL https://lillizz.github.io/merry-christmas-tree-web/install-mac.sh | bash -s -- friends</code>
+                    <button
+                      type="button"
+                      class="copy-mini-btn"
+                      data-copy-text="curl -fsSL https://lillizz.github.io/merry-christmas-tree-web/install-mac.sh | bash -s -- friends"
+                    >
+                      <span data-copy-label>복사</span>
+                    </button>
+                  </div>
+                  <ol class="guide-list" style="margin-top: 14px">
+                    <li><strong>직접 .dmg 설치 시:</strong> <code>MerryChristmasTree</code>를 응용 프로그램 폴더로 복사한 뒤 "손상되었기 때문에 열 수 없음" 안내가 뜨면 아래 명령어를 한 번 실행하세요.</li>
+                  </ol>
+                  <div class="code-snippet-box">
+                    <code class="mono-font">xattr -cr /Applications/MerryChristmasTree.app</code>
+                    <button
+                      type="button"
+                      class="copy-mini-btn"
+                      data-copy-text="xattr -cr /Applications/MerryChristmasTree.app"
+                    >
+                      <span data-copy-label>복사</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="guide-box" data-guide-panel="win" hidden>
+                  <h3>Windows SmartScreen 안내 시 실행 방법</h3>
+                  <ol class="guide-list">
+                    <li>다운로드한 <code>Setup.exe</code> 파일을 실행합니다.</li>
+                    <li>"Windows의 PC 보호" 창이 나타나면 좌측의 <strong>추가 정보</strong>를 클릭합니다.</li>
+                    <li>아래에 나타나는 <strong>실행</strong> 버튼을 누르면 설치가 바로 진행됩니다.</li>
+                  </ol>
+                </div>
+
+                <div class="guide-box">
+                  <h3>친구 · 가족 방 3단계 시작하기</h3>
+                  <ol class="guide-list">
+                    <li>앱 실행 후 <strong>새 방 만들기</strong>를 눌러 초대코드를 발급하거나, 친구에게 받은 <strong>초대코드</strong>를 입력하세요.</li>
+                    <li>방에서 사용할 <strong>닉네임</strong>과 로그인용 <strong>숫자 4자리 PIN</strong>을 설정해 입장합니다.</li>
+                    <li>바탕화면 트리를 클릭하면 타임캡슐을 작성하고 어드벤트 · 산타 선물을 바로 즐길 수 있습니다.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <span class="mono-font">✦ 메리크리스마스트리 · 3D Desktop Widget</span>
+          <span>지원 환경: macOS 12+ · Windows 10/11</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
