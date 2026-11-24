@@ -14,7 +14,7 @@ window.APP_DOWNLOAD_CONFIG = {
   allowPlainVTag: true,
   excludeTagPrefixes: ['company-', 'corp-'],
   cacheTtlMs: 5 * 60 * 1000,
-  fallbackVersion: '2.3.1',
+  fallbackVersion: '2.3.2',
   fallbackDownloads: {
     'mac-arm64': '',
     'mac-x64': '',
