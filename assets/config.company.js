@@ -14,7 +14,7 @@ window.APP_DOWNLOAD_CONFIG = {
   allowPlainVTag: false,
   excludeTagPrefixes: ['friends-'],
   cacheTtlMs: 5 * 60 * 1000,
-  fallbackVersion: '2.2.0',
+  fallbackVersion: '2.3.0',
   fallbackDownloads: {
     'mac-arm64': '',
     'mac-x64': '',
