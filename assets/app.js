@@ -34,6 +34,58 @@
     return raw.startsWith('v') ? raw : 'v' + raw;
   }
 
+  function parseSemver(versionStr) {
+    var m = String(versionStr || '').match(/(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return null;
+    return [Number(m[1]), Number(m[2]), Number(m[3])];
+  }
+
+  function compareSemver(a, b) {
+    var pa = parseSemver(a);
+    var pb = parseSemver(b);
+    if (!pa || !pb) return 0;
+    for (var i = 0; i < 3; i++) {
+      if (pa[i] !== pb[i]) return pa[i] - pb[i];
+    }
+    return 0;
+  }
+
+  function isCachedReleaseStale(cachedData, config) {
+    if (!cachedData || !cachedData.found) {
+      return true;
+    }
+    var fallbackVer = config && config.fallbackVersion;
+    if (!fallbackVer || !cachedData.version) {
+      return false;
+    }
+    if (!parseSemver(cachedData.version) || !parseSemver(fallbackVer)) {
+      return false;
+    }
+    return compareSemver(cachedData.version, fallbackVer) < 0;
+  }
+
+  function pickNewestRelease(candidates) {
+    if (!candidates || candidates.length === 0) return null;
+    var best = candidates[0];
+    for (var i = 1; i < candidates.length; i++) {
+      var cur = candidates[i];
+      var cmp = compareSemver(
+        cur.tag_name || cur.name || '',
+        best.tag_name || best.name || ''
+      );
+      if (cmp > 0) {
+        best = cur;
+      } else if (cmp === 0) {
+        var timeA = Date.parse(cur.published_at || cur.created_at || '') || 0;
+        var timeB = Date.parse(best.published_at || best.created_at || '') || 0;
+        if (timeA > timeB) {
+          best = cur;
+        }
+      }
+    }
+    return best;
+  }
+
   function selectReleaseForEdition(releases, config) {
     if (!Array.isArray(releases) || releases.length === 0) {
       return null;
@@ -58,23 +110,25 @@
     var pool = stables.length > 0 ? stables : nonDrafts;
 
     if (tagPrefix) {
-      for (var i = 0; i < pool.length; i++) {
-        var tag = String(pool[i].tag_name || '').toLowerCase();
-        if (tag.indexOf(tagPrefix) === 0) {
-          return pool[i];
-        }
+      var prefixed = pool.filter(function (r) {
+        var tag = String(r.tag_name || '').toLowerCase();
+        return tag.indexOf(tagPrefix) === 0;
+      });
+      if (prefixed.length > 0) {
+        return pickNewestRelease(prefixed);
       }
     }
 
     if (allowPlainVTag) {
-      for (var j = 0; j < pool.length; j++) {
-        var plainTag = String(pool[j].tag_name || '').toLowerCase();
+      var plainMatches = pool.filter(function (r) {
+        var plainTag = String(r.tag_name || '').toLowerCase();
         var excluded = excludes.some(function (ex) {
           return ex && plainTag.indexOf(ex) === 0;
         });
-        if (!excluded) {
-          return pool[j];
-        }
+        return !excluded;
+      });
+      if (plainMatches.length > 0) {
+        return pickNewestRelease(plainMatches);
       }
     }
 
@@ -160,6 +214,9 @@
     formatBytes: formatBytes,
     formatDate: formatDate,
     formatDisplayVersion: formatDisplayVersion,
+    parseSemver: parseSemver,
+    compareSemver: compareSemver,
+    isCachedReleaseStale: isCachedReleaseStale,
     selectReleaseForEdition: selectReleaseForEdition,
     matchAssets: matchAssets,
   };
@@ -266,7 +323,9 @@
       if (!parsed || !parsed.data) return null;
       var ttl = Number(config.cacheTtlMs || 5 * 60 * 1000);
       var expired = Date.now() - Number(parsed.savedAt || 0) > ttl;
-      if (expired && !allowExpired) return null;
+      if (!allowExpired && (expired || isCachedReleaseStale(parsed.data, config))) {
+        return null;
+      }
       return parsed.data;
     } catch (_err) {
       return null;
@@ -335,9 +394,10 @@
     var apiUrl =
       'https://api.github.com/repos/' +
       config.githubRepo +
-      '/releases?per_page=20';
+      '/releases?per_page=50';
 
     return fetch(apiUrl, {
+      cache: 'no-cache',
       headers: {
         Accept: 'application/vnd.github+json',
       },
